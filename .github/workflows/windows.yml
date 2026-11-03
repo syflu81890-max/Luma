@@ -1,0 +1,154 @@
+name: Build and verify Windows beta
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish verified artifacts as a prerelease
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  actions: read
+jobs:
+  ffmpeg:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: ffmpeg-cache
+        with:
+          path: |
+            vendor/ffmpeg/
+            third-party-sources/ffmpeg-*.tar.gz
+          key: ffmpeg-win64-lgpl-v1-${{ hashFiles('tools/build_ffmpeg.sh') }}
+      # Immutable artifact from this repository's first verified FFmpeg job.
+      # Reuse only with the identical build script; expiry falls back to source.
+      - uses: actions/download-artifact@v4
+        if: steps.ffmpeg-cache.outputs.cache-hit != 'true' && github.repository == 'syflu81890-max/Luma'
+        continue-on-error: true
+        with:
+          name: ffmpeg-build
+          run-id: 41689886519
+          github-token: ${{ github.token }}
+      - id: ffmpeg-ready
+        shell: bash
+        run: |
+          if test -f vendor/ffmpeg/ffmpeg.exe && test -f third-party-sources/ffmpeg-3a0867c2bfda4a4d4309ca1a8cbdc6175e67f587.tar.gz && cmp -s tools/build_ffmpeg.sh vendor/ffmpeg/BUILD.sh; then
+            test "$(cat vendor/ffmpeg/UPSTREAM_COMMIT)" = 3a0867c2bfda4a4d4309ca1a8cbdc6175e67f587
+            ! grep -q '^#define CONFIG_GPL 1\|^#define CONFIG_NONFREE 1\|^#define CONFIG_VERSION3 1' vendor/ffmpeg/config.h
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          fi
+      - run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64 make
+        if: steps.ffmpeg-ready.outputs.ready != 'true'
+      - run: bash tools/build_ffmpeg.sh
+        if: steps.ffmpeg-ready.outputs.ready != 'true'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-build
+          path: |
+            vendor/ffmpeg/
+            third-party-sources/ffmpeg-*.tar.gz
+  windows:
+    needs: ffmpeg
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ffmpeg-build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: requirements-build.lock
+      - run: npm ci
+      - name: Install desktop runtime for tests and original notices
+        run: node node_modules/electron/install.js
+      - name: Prepare Python environment
+        run: |
+          python -m venv .venv
+          .venv/Scripts/python -m pip install -r requirements-build.lock
+      - name: Verify backend and desktop logic
+        run: |
+          .venv/Scripts/python -m unittest discover -s tests -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --test tests/completion.test.cjs tests/profile.test.cjs tests/assistant.test.cjs tests/workspaces-session.test.cjs tests/browser-collector.test.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node tools/check_i18n.cjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run build
+      - name: Preserve notices and freeze independent executables
+        run: |
+          .venv/Scripts/python tools/prepare_notices.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          .venv/Scripts/python tools/freeze.py
+      - name: Verify frozen programs without a live X account
+        run: |
+          $env:LUMA_ENGINE_CACHE=Join-Path $PWD '.tools/ci-engine'
+          .venv/Scripts/python tests/frozen-smoke.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          .venv/Scripts/python tests/frozen-collector.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          .venv/Scripts/python tests/frozen-assistant.py
+      - name: Verify interactive desktop behavior
+        run: |
+          $process=Start-Process -FilePath (Join-Path $PWD 'node_modules/electron/dist/electron.exe') -ArgumentList 'tests/upgrade06-smoke.cjs' -WindowStyle Hidden -PassThru -Wait
+          if ($process.ExitCode -ne 0) { exit $process.ExitCode }
+          $report=Get-Content output/upgrade06-smoke.json -Raw | ConvertFrom-Json
+          if (-not $report.ok) { throw 'Desktop verification failed' }
+      - name: Build public executables
+        run: npx electron-builder --win portable nsis
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Verify actual executables and export corresponding sources
+        run: |
+          .venv/Scripts/python tests/packaged-public-smoke.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:LUMA_TEST_PORTABLE='1'
+          .venv/Scripts/python tests/packaged-public-smoke.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          .venv/Scripts/python tools/package_release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Luma-public-release
+          compression-level: 0
+          path: |
+            release-public/*.exe
+            release-public/*.zip
+            release-public/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Luma-verification
+          path: |
+            output/*-smoke.json
+            output/freeze-public.json
+            output/public-source-manifest.json
+  publish:
+    needs: windows
+    if: github.repository == 'syflu81890-max/Luma' && github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.publish) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[publish]')))
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: Luma-public-release
+          path: release-public
+      - name: Publish exact tested commit and assets
+        run: |
+          $version=(Get-Content package.json -Raw | ConvertFrom-Json).version
+          $assets=(Get-ChildItem release-public -File).FullName
+          gh release create "v$version" @assets --target $env:GITHUB_SHA --prerelease --title "Luma $version" --notes-file "docs/RELEASE_NOTES_$version.md"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

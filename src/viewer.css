@@ -1,0 +1,65 @@
+/* Reserve separate rows for controls, media and caption at every UI scale. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  color: #ddd;
+  background: #111114;
+}
+
+.viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  min-width: 0;
+  padding: 10px 20px;
+  border-bottom: 1px solid #ffffff15;
+  font-size: .85rem;
+}
+
+.viewer-toolbar > span { color: #aaa; white-space: nowrap; }
+.viewer-toolbar > div { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.viewer-toolbar button { min-height: 34px; padding: 7px 10px; color: #ddd; white-space: nowrap; }
+.viewer-toolbar button:hover, .viewer-toolbar button[aria-pressed=true] { background: #ffffff14; }
+.viewer-toolbar input { width: clamp(60px, 10vw, 140px); accent-color: #6995ee; }
+
+.viewer-stage {
+  display: grid;
+  grid-template-columns: clamp(40px, 4vw, 64px) minmax(0, 1fr) clamp(40px, 4vw, 64px);
+  min-width: 0;
+  min-height: 0;
+}
+
+.viewer-prev, .viewer-next {
+  align-self: center;
+  justify-self: center;
+  width: 36px;
+  height: 50px;
+  padding: 0;
+  color: #ddd;
+  background: #ffffff08;
+}
+
+.viewer-content { min-width: 0; min-height: 0; overflow: auto; padding: 8px; overscroll-behavior: contain; }
+.viewer-media { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.viewer-media > img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; border-radius: 4px; }
+.viewer-content.native-size .viewer-media { width: max-content; height: max-content; min-width: 100%; min-height: 100%; }
+.viewer-content.native-size img { flex-shrink: 0; max-width: none; max-height: none; }
+.viewer-caption { margin: 0; padding: 9px 20px 12px; text-align: center; color: #999; font-size: .75rem; line-height: 1.6; overflow-wrap: anywhere; }
+
+.video-viewer { display: grid; grid-template-rows: minmax(0, 1fr) auto; justify-items: center; gap: 12px; width: 100%; height: 100%; min-height: 0; }
+.video-viewer video { align-self: center; max-width: 100%; max-height: 100%; width: auto; height: auto; min-height: 0; }
+.video-viewer button { color: #ccc; background: #ffffff10; border-color: #ffffff20; }
+
+@media (max-width: 700px) {
+  .viewer-toolbar { padding: 8px; gap: 4px; }
+  .viewer-toolbar > span { font-size: .75rem; }
+  .viewer-toolbar > div { gap: 3px; }
+  .viewer-toolbar button { padding: 6px; }
+  .viewer-caption { padding: 7px 12px; }
+}

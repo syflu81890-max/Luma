@@ -1,0 +1,23 @@
+name: Bug report / 问题报告
+description: Report a reproducible problem / 报告可以复现的软件问题
+body:
+  - type: markdown
+    attributes:
+      value: Please remove cookies, API tokens, private media and personal paths. 请勿上传登录凭据、私人图片或未脱敏日志。
+  - type: input
+    id: version
+    attributes:
+      label: Luma and Windows versions / 软件及系统版本
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps, expected and actual behavior / 复现步骤、预期与实际结果
+      description: Prefer sample files and a temporary library / 尽量使用示例文件和临时库
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted error or screenshot (optional) / 已脱敏错误或截图（可选）

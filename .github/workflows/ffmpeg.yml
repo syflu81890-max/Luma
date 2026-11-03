@@ -1,0 +1,22 @@
+name: Build redistributable FFmpeg
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/luma-ffmpeg-20261103']
+permissions:
+  contents: read
+jobs:
+  ffmpeg:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y gcc-mingw-w64-x86-64 make
+      - run: bash tools/build_ffmpeg.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Luma-FFmpeg-LGPL
+          path: |
+            vendor/ffmpeg/
+            third-party-sources/ffmpeg-*.tar.gz
+          retention-days: 30

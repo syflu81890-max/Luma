@@ -1,0 +1,8 @@
+gallery-dl==1.32.19
+Pillow==12.3.0
+pyinstaller==6.16.0
+numpy>=2.2,<3
+onnxruntime==1.31.1
+tokenizers>=0.22,<1
+rapidocr_onnxruntime==1.2.3
+imageio-ffmpeg==0.7.0

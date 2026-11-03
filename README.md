@@ -26,7 +26,7 @@ Before upgrading, fully quit the older application and back up the library. Sche
 
 ## Current limits
 
-Real-account following imports and private-account capture need broader live testing. Language-based region suggestions are editable hints, not verified nationality. Similarity and OCR can make mistakes: review removal plans. Automatic nudity classification, NAS/server mode, cloud backup and graphical theme packs are not included. Theme extension interfaces are documented for later work.
+Real-account following imports and private-account capture need broader live testing. Video playback depends on Chromium codec support; unsupported encodings may still import with a cover image and require an external player. Language-based region suggestions are editable hints, not verified nationality. Similarity and OCR can make mistakes: review removal plans. Automatic nudity classification, NAS/server mode, cloud backup and graphical theme packs are not included. Theme extension interfaces are documented for later work.
 
 No telemetry or cloud inference is enabled. Credentials, databases, collected media and model caches are excluded from the public source. The optional assistant API binds to loopback, requires a token and is off by default. See [Privacy](docs/PRIVACY.md).
 

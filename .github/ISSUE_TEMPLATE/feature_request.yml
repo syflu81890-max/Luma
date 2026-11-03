@@ -1,0 +1,17 @@
+name: Feature request / 功能建议
+description: Describe a practical need / 描述希望解决的实际问题
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Use case and difficulty / 使用场景与遇到的困难
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Desired behavior / 希望发生的行为
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Examples or alternatives (optional) / 示例或替代办法（可选）
