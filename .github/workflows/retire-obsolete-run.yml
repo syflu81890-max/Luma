@@ -1,17 +1,23 @@
-name: Retire obsolete prerelease build
+name: Purge approved obsolete builds
 on:
   push:
-    branches: [main]
+    branches: [codex/cleanup-obsolete-runs]
   workflow_dispatch:
 permissions:
   contents: read
   actions: write
 jobs:
-  retire:
+  purge:
     if: github.repository == 'syflu81890-max/Luma'
     runs-on: ubuntu-latest
     steps:
-      - name: Cancel superseded build before publishing the cleaned source
-        run: gh run cancel 41693388310 --repo "$GITHUB_REPOSITORY" || true
+      - name: Remove exactly the three obsolete runs approved by the repository owner
         env:
           GH_TOKEN: ${{ github.token }}
+        run: |
+          for run_id in 41689886519 41691735473 41693388310; do
+            test "$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" --jq .status)" = completed
+          done
+          for run_id in 41689886519 41691735473 41693388310; do
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/$run_id"
+          done
