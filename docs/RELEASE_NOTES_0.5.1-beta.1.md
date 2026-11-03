@@ -3,6 +3,7 @@
 English and Simplified Chinese are available in Settings. This is an unsigned Windows x64 public beta.
 
 - Library switching now pauses background maintenance, reports progress, supports cancellation and uses a controlled desktop reload. Failures retain the old library pointer.
+- Windows long/short paths and directory aliases now identify one physical workspace. Existing duplicate entries are merged with a registry backup; manual appearance and old-ID lookup are retained.
 - Accounts gain three collection selectors with inline creation, reusable notes, editable region flags and persistent collection ordering.
 - Pinned avatars no longer reload on every library revision. Avatar and nickname history are separate from the displayed avatar.
 - Account removal previews shared/exclusive media, requires the account handle, preserves shared files and supports Undo. Media removal uses Trash.

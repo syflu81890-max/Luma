@@ -1,5 +1,14 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {Workspaces}=require('../electron/workspaces.cjs'),{XSession,cookieSet}=require('../electron/x-session.cjs');
+test('physical path aliases share one workspace and legacy IDs retain settings',()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'luma-spaces-alias-'));
+ try{
+  const real=path.join(root,'physical'),alias=path.join(root,'alias'),profile=path.join(root,'profile');fs.mkdirSync(real);fs.mkdirSync(profile);fs.writeFileSync(path.join(real,'library.db'),'original');fs.symlinkSync(real,alias,process.platform==='win32'?'junction':'dir');
+  const registry=new Workspaces(profile),first=registry.track(alias);assert.equal(registry.info(real).current.id,first.id);assert.equal(registry.items.length,1);
+  fs.writeFileSync(path.join(profile,'workspaces.json'),JSON.stringify({version:1,items:[{id:'original-id',path:alias,name:'My references',appearance:{theme:'dark'}},{id:'duplicate-id',path:real,name:'Duplicate',appearance:{fontScale:1.3}}]}));
+  const recovered=new Workspaces(profile);assert.equal(recovered.items.length,1);assert.equal(recovered.info(real).current.id,'original-id');assert.equal(recovered.info(alias).current.name,'My references');assert.deepEqual(recovered.get('duplicate-id').appearance,{theme:'dark',fontScale:1.3});assert.ok(fs.existsSync(path.join(profile,'workspaces.before-alias-dedupe.json')));assert.equal(new Workspaces(profile).get('duplicate-id').id,'original-id');assert.equal(fs.readFileSync(path.join(real,'library.db'),'utf8'),'original');
+ }finally{fs.rmSync(root,{recursive:true,force:true})}
+});
 test('workspace names, paths and appearance survive restart without moving data',()=>{
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'luma-spaces-'));try{
   const registry=new Workspaces(path.join(root,'profile')),one=path.join(root,'one'),two=path.join(root,'two');fs.mkdirSync(one);fs.mkdirSync(two);fs.writeFileSync(path.join(one,'library.db'),'original-one');fs.writeFileSync(path.join(two,'library.db'),'original-two');

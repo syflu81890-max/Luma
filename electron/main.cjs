@@ -4,7 +4,7 @@ const { spawn, spawnSync, execFile } = require('node:child_process');
 const { prepareProfile } = require('./profile.cjs');
 const { CompletionController } = require('./completion.cjs');
 const { LocalAssistant } = require('./assistant.cjs');
-const { Workspaces } = require('./workspaces.cjs');
+const { Workspaces, sameWorkspacePath } = require('./workspaces.cjs');
 const { XSession } = require('./x-session.cjs');
 const { BrowserCollector } = require('./browser-collector.cjs');
 const fs = require('node:fs');
@@ -395,7 +395,7 @@ if (primary)
                 }
                 if (method === 'workspaceSelect') {
                     const row = workspaces.get(args.id), current = (await rpc('libraryLocation')).path;
-                    if (path.resolve(row.path).toLowerCase() !== path.resolve(current).toLowerCase()) {
+                    if (!sameWorkspacePath(row.path, current)) {
                         const result = await switchLibrary({ path: row.path, mode: 'switch' });
                         libraryRoot = result.path;
                     }
