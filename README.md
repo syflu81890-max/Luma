@@ -4,7 +4,7 @@ A local-first Windows library for collecting, finding and organizing photos, vid
 
 [简体中文](README.zh-CN.md) · [Downloads](https://github.com/syflu81890-max/Luma/releases) · [Report a bug](https://github.com/syflu81890-max/Luma/issues/new/choose)
 
-**0.5.1-beta.1 — public beta, Windows 10/11 x64.** Download the portable EXE to run without installation, or use the Setup EXE. Windows builds are currently unsigned. Source archives and SHA-256 checksums accompany releases.
+**0.5.1-beta.2 — public beta, Windows 10/11 x64.** Download the portable EXE to run without installation, or use the Setup EXE. Windows builds are currently unsigned. Source archives and SHA-256 checksums accompany releases.
 
 ## What it does
 
@@ -32,6 +32,6 @@ No telemetry or cloud inference is enabled. Credentials, databases, collected me
 
 ## Contribute and build
 
-Ideas and bug reports in English or Chinese are welcome. Please include the version and reproducible steps using sample data; remove credentials and private paths. See [Contributing](CONTRIBUTING.md), [Build instructions](docs/BUILDING.md), [Translation guide](docs/TRANSLATING.md), and [release notes](docs/RELEASE_NOTES_0.5.1-beta.1.md).
+Ideas and bug reports in English or Chinese are welcome. Please include the version and reproducible steps using sample data; remove credentials and private paths. See [Contributing](CONTRIBUTING.md), [Build instructions](docs/BUILDING.md), [Translation guide](docs/TRANSLATING.md), and [release notes](docs/RELEASE_NOTES_0.5.1-beta.2.md).
 
 Luma core: **GPL-3.0-or-later**. Independent collector integration: **GPL-2.0-only**. Third-party components and model data retain their original licenses. User media is outside this license grant. See [COPYRIGHT](COPYRIGHT), [third-party notices](THIRD_PARTY_NOTICES.md) and [corresponding source](docs/SOURCE_CODE.md).

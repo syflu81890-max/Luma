@@ -20,7 +20,8 @@ def source_files():
             if path.suffix not in EXTENSIONS and path.name!='LICENSE':continue
             if path.is_symlink() or not path.resolve().is_relative_to(ROOT):raise RuntimeError('Unsafe source path')
             result.append(path)
-    for name in DOCS:
+    version=json.loads((ROOT/'package.json').read_text(encoding='utf-8'))['version']
+    for name in DOCS|{f'RELEASE_NOTES_{version}.md',f'VALIDATION_{version}.md'}:
         path=ROOT/'docs'/name
         if path.is_file():result.append(path)
     result.append(ROOT/'build-resources/icon.ico')

@@ -2,7 +2,7 @@
 
 [English](README.md) · [下载](https://github.com/syflu81890-max/Luma/releases) · [反馈问题与建议](https://github.com/syflu81890-max/Luma/issues/new/choose)
 
-**0.5.1-beta.1 公开测试版，适用于 Windows 10/11 x64。** 便携 EXE 双击运行，Setup EXE 支持安装。当前未做代码签名；每次发行同时提供源码、第三方源码和 SHA-256 校验文件。
+**0.5.1-beta.2 公开测试版，适用于 Windows 10/11 x64。** 便携 EXE 双击运行，Setup EXE 支持安装。当前未做代码签名；每次发行同时提供源码、第三方源码和 SHA-256 校验文件。
 
 ## 主要功能
 
@@ -28,6 +28,6 @@
 
 ## 开源与反馈
 
-欢迎用中英文提交问题和建议，注明版本、复现步骤，并使用示例图片；请删去凭据与私人磁盘路径。见 [贡献说明](CONTRIBUTING.md)、[构建说明](docs/BUILDING.md)、[翻译指南](docs/TRANSLATING.md)、[版本说明](docs/RELEASE_NOTES_0.5.1-beta.1.md)。
+欢迎用中英文提交问题和建议，注明版本、复现步骤，并使用示例图片；请删去凭据与私人磁盘路径。见 [贡献说明](CONTRIBUTING.md)、[构建说明](docs/BUILDING.md)、[翻译指南](docs/TRANSLATING.md)、[版本说明](docs/RELEASE_NOTES_0.5.1-beta.2.md)。
 
 核心使用 GPL-3.0-or-later，独立采集器集成使用 GPL-2.0-only；第三方依赖和模型保留原许可。可以免费使用、修改、再分发及商用，分发修改版需遵守相应 GPL 的源码和许可义务；软件许可不授予图库图片的版权。见 [COPYRIGHT](COPYRIGHT)、[第三方声明](THIRD_PARTY_NOTICES.md) 及 [对应源码](docs/SOURCE_CODE.md)。

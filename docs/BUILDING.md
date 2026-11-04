@@ -20,7 +20,7 @@ npm run build
 .venv/Scripts/python tools/prepare_notices.py
 .venv/Scripts/python tools/freeze.py
 $env:CSC_IDENTITY_AUTO_DISCOVERY='false'
-npx electron-builder --win portable nsis
+npx electron-builder --win portable nsis --publish never
 .venv/Scripts/python tools/package_release.py
 ```
 

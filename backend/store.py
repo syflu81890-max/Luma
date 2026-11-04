@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from contextlib import contextmanager,closing
 from urllib.parse import urlparse
 from PIL import Image, ImageOps
-from media_utils import inspect_media,VIDEO_EXT
+from media_utils import inspect_media,VIDEO_EXT,thumbnail_name,save_thumbnail
 from storage_layout import StorageLayout
 
 EXT={'.jpg','.jpeg','.png','.webp','.gif','.bmp'}|VIDEO_EXT
@@ -271,7 +271,7 @@ class Store(Organization,StorageLayout):
                             color='#%02x%02x%02x'%thumb.resize((1,1)).getpixel((0,0))
                             relative='originals/'+digest+p.suffix.lower();destination=self.root/relative
                             atomic_copy(p,destination)
-                            temporary=self.root/'thumbs'/(digest+'.pending.jpg');thumb.save(temporary,quality=85);os.replace(temporary,self.root/'thumbs'/(digest+'.jpg'))
+                            save_thumbnail(thumb,self.root/'thumbs'/thumbnail_name(digest,p))
                         finally:im.close()
                         author=(metadata or {}).get('author') or {};author=author.get('name','') if isinstance(author,dict) else ''
                         with self.transaction() as db:
@@ -357,10 +357,10 @@ class Store(Organization,StorageLayout):
             with Image.open(self.path(rows[0]['path'])) as im:
                 im=ImageOps.exif_transpose(im).convert('RGB');im.thumbnail((2400,2400));stream=io.BytesIO();im.save(stream,format='JPEG',quality=92);data=stream.getvalue()
         else:
-            p=self.root/'thumbs'/(ident+'.jpg')
+            p=self.root/'thumbs'/thumbnail_name(ident,rows[0]['path'])
             if not p.exists():
                 im,_,_,_=inspect_media(self.path(rows[0]['path']))
-                try:im.thumbnail((640,640));im.save(p,quality=85)
+                try:save_thumbnail(im,p)
                 finally:im.close()
             data=p.read_bytes()
         return 'data:image/jpeg;base64,'+base64.b64encode(data).decode()
@@ -423,7 +423,8 @@ class Store(Organization,StorageLayout):
             locations=[self.path(r['path']) for r in self.query('SELECT path FROM media_locations WHERE photo=?',(ident,))]+[self.path(rows[0]['path'])]
             for file in set(locations):
                 file.unlink(missing_ok=True);self._remove_empty_parents(file)
-            self.write('DELETE FROM media_locations WHERE photo=?',(ident,));self.write('DELETE FROM layout_jobs WHERE photo=?',(ident,));(self.root/'thumbs'/(ident+'.jpg')).unlink(missing_ok=True)
+            self.write('DELETE FROM media_locations WHERE photo=?',(ident,));self.write('DELETE FROM layout_jobs WHERE photo=?',(ident,))
+            for name in {ident+'.jpg',thumbnail_name(ident,rows[0]['path'])}:(self.root/'thumbs'/name).unlink(missing_ok=True)
             self.write("UPDATE photos SET trash=2,path='' WHERE id=?",(ident,));self.write('DELETE FROM embeddings WHERE photo=?',(ident,));count+=1
         return count
     def accounts(self,a=None):
