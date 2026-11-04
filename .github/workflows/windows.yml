@@ -97,7 +97,7 @@ jobs:
           $report=Get-Content output/upgrade06-smoke.json -Raw | ConvertFrom-Json
           if (-not $report.ok) { throw 'Desktop verification failed' }
       - name: Build public executables
-        run: npx electron-builder --win portable nsis
+        run: npx electron-builder --win portable nsis --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       - name: Verify actual executables and export corresponding sources
